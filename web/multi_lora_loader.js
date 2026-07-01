@@ -449,7 +449,7 @@ function ensureMultiLoraUi(node) {
     node.serialize_widgets = true;
     node.comfystandStateWidget = node.widgets?.find((widget) => widget.name === "lora_state");
     hideWidget(node.comfystandStateWidget);
-    node.comfystandExpandedFolders = node.comfystandExpandedFolders || new Set();
+    node.comfystandExpandedFolders = node.comfystandExpandedFolders || new Map();
 
     if (node.comfystandMultiLoraRoot && node.widgets?.some((widget) => widget.name === "multi_lora_ui")) {
         return;
@@ -577,7 +577,7 @@ function renderMultiLoraUi(node) {
         list.appendChild(createLoraRow(node, lora));
     }
     for (const folder of tree.folders.values()) {
-        list.appendChild(createCategory(node, folder));
+        list.appendChild(createCategory(node, folder, true));
     }
 }
 
@@ -626,8 +626,11 @@ function createGlobalStrengthControl(node, state) {
     return container;
 }
 
-function createCategory(node, tree) {
-    const expanded = node.comfystandExpandedFolders.has(tree.path);
+function createCategory(node, tree, isTopLevel = false) {
+    const expandedStates = node.comfystandExpandedFolders;
+    const hasStored = expandedStates.has(tree.path);
+    const stored = hasStored ? expandedStates.get(tree.path) : null;
+    const expanded = hasStored ? stored : (isTopLevel || false);
     const category = document.createElement("div");
     category.className = "cstand-mlora-category";
     category.classList.toggle("open", expanded);
@@ -653,11 +656,7 @@ function createCategory(node, tree) {
 
     header.addEventListener("click", () => {
         const isOpen = category.classList.toggle("open");
-        if (!isOpen) {
-            node.comfystandExpandedFolders.delete(tree.path);
-        } else {
-            node.comfystandExpandedFolders.add(tree.path);
-        }
+        expandedStates.set(tree.path, isOpen);
         node.setDirtyCanvas(true, true);
     });
     category.appendChild(header);
