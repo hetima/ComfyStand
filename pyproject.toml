@@ -1,0 +1,13 @@
+[project]
+name = "ComfyStand"
+description = "Tools for ComfyUI"
+version = "0.0.1"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/hetima/ComfyStand"
+
+[tool.comfy]
+PublisherId = "hetima"
+DisplayName = "ComfyStand"
