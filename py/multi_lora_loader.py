@@ -130,6 +130,7 @@ class MultiLoraLoader:
                 continue
 
             lora_names.append(os.path.splitext(os.path.basename(full_path))[0])
+            # trigger_word = str(lora.get("trigger_word", "") or _read_trigger_word(full_path)).strip()
             trigger_word = str(lora.get("trigger_word", "")).strip()
             if trigger_word and trigger_word not in seen_trigger_words:
                 trigger_words.append(trigger_word)

@@ -392,6 +392,7 @@ function mergeLoras(oldLoras, newLoras) {
             ...lora,
             enabled: Boolean(old?.enabled),
             strength: clampStrength(old?.strength ?? 1),
+            // trigger_word: lora.trigger_word ?? old?.trigger_word ?? "",
         };
     });
 }
