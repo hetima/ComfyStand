@@ -412,7 +412,7 @@ function mergeLoras(oldLoras, newLoras) {
     });
 }
 
-function createTree(loras) {
+function createTree(loras, rootPath = "") {
     const root = { name: "", path: "", folders: new Map(), files: [] };
     for (const lora of loras) {
         const parts = lora.relative_path.split("/");
@@ -426,6 +426,17 @@ function createTree(loras) {
         }
         current.files.push(lora);
     }
+
+    // フォルダを持たないフラットな構造の場合、ルートフォルダ名でラップして
+    // 親フォルダを含むツリー構造にする
+    if (root.folders.size === 0 && root.files.length > 0) {
+        const rootName = (rootPath || "").replace(/\\/g, "/").replace(/\/+$/, "").split("/").pop() || "root";
+        const wrapper = { name: rootName, path: rootName, folders: new Map(), files: [] };
+        root.folders.set(rootName, wrapper);
+        wrapper.files = root.files;
+        root.files = [];
+    }
+
     return root;
 }
 
@@ -598,7 +609,7 @@ function renderMultiLoraUi(node) {
         return;
     }
 
-    const tree = createTree(state.loras);
+    const tree = createTree(state.loras, state.root_path);
     for (const lora of tree.files) {
         list.appendChild(createLoraRow(node, lora));
     }
