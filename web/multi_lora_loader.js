@@ -200,6 +200,21 @@ const STYLES = `
     margin-left: 6px;
 }
 
+.cstand-mlora-reset-btn {
+    padding: 0;
+    margin-left: 4px;
+    background: transparent;
+    color: #888;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.cstand-mlora-reset-btn:hover {
+    color: #ddd;
+}
+
 .cstand-mlora-category-content {
     display: none;
     flex-direction: column;
@@ -420,6 +435,17 @@ function countFiles(tree) {
         count += countFiles(child);
     }
     return count;
+}
+
+function collectRelativePaths(tree) {
+    const paths = [];
+    for (const lora of tree.files) {
+        paths.push(lora.relative_path);
+    }
+    for (const child of tree.folders.values()) {
+        paths.push(...collectRelativePaths(child));
+    }
+    return paths;
 }
 
 app.registerExtension({
@@ -653,6 +679,28 @@ function createCategory(node, tree, isTopLevel = false) {
     count.className = "cstand-mlora-category-count";
     count.textContent = `(${countFiles(tree)})`;
     header.appendChild(count);
+
+    const resetBtn = document.createElement("button");
+    resetBtn.className = "cstand-mlora-reset-btn";
+    resetBtn.textContent = "↻";
+    resetBtn.title = "Reset strength";
+    resetBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const paths = collectRelativePaths(tree);
+        if (!paths.length) return;
+        const next = getState(node);
+        const pathSet = new Set(paths);
+        next.loras = next.loras.map((item) => (
+            pathSet.has(item.relative_path) ? { ...item, strength: 1 } : item
+        ));
+        setState(node, next);
+        category.querySelectorAll(".cstand-mlora-row").forEach((row) => {
+            if (!pathSet.has(row.dataset.relativePath)) return;
+            const number = row.querySelector(".cstand-mlora-number");
+            if (number) number.value = "1.00";
+        });
+    });
+    header.appendChild(resetBtn);
 
     header.addEventListener("click", () => {
         const isOpen = category.classList.toggle("open");
