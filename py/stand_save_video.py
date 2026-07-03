@@ -29,36 +29,26 @@ PRESETS = {
     "ProRes_4444_4:4:4_12bit_(~330Mbps)":     {"codec": "prores_ks", "container": "mov", "pix_fmt": "yuv444p10le", "opts": {"profile": "4"}},
     "ProRes_4444_XQ_4:4:4_12bit_(~500Mbps)":  {"codec": "prores_ks", "container": "mov", "pix_fmt": "yuv444p10le", "opts": {"profile": "5"}},
 
-    "H264_AllI_4:2:0_8bit_CRF14":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "14", "preset": "slow", "profile": "high",    "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-    "H264_AllI_4:2:2_8bit_CRF12":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv422p", "opts": {"crf": "12", "preset": "slow", "profile": "high422", "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-    "H264_AllI_4:4:4_8bit_CRF10":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv444p", "opts": {"crf": "10", "preset": "slow", "profile": "high444", "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
+    "x264_4:2:0_8bit_CRF23":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "23", "preset": "slow", "g": "240"}},
+    "x264_4:2:0_8bit_CRF18":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "18", "preset": "slow", "g": "240"}},
 
-    "H264_AllI_4:2:0_10bit_CRF14":      {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p10le", "opts": {"crf": "14", "preset": "slow", "profile": "high10",   "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-    "H264_AllI_4:2:2_10bit_CRF12":      {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv422p10le", "opts": {"crf": "12", "preset": "slow", "profile": "high422",  "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-    "H264_AllI_4:4:4_10bit_CRF10":      {"codec": "libx264", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"crf": "10", "preset": "slow", "profile": "high444",  "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-    "H264_AllI_4:4:4_10bit_lossless":   {"codec": "libx264", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"qp": "0", "preset": "veryslow", "profile": "high444", "g": "1", "bf": "0", "x264-params": "keyint=1:scenecut=0"}},
-
-    "H265_AllI_4:2:0_8bit_CRF14":      {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p",     "opts": {"crf": "14", "preset": "slow", "profile": "main",        "x265-params": "keyint=1:no-open-gop=1:bframes=0:tune=grain:deblock=-3,-3:no-sao=1"}},
-    "H265_AllI_4:2:0_10bit_CRF14":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "opts": {"crf": "14", "preset": "slow", "profile": "main10",      "x265-params": "keyint=1:no-open-gop=1:bframes=0:tune=grain:deblock=-3,-3:no-sao=1"}},
-    "H265_AllI_4:2:2_10bit_CRF12":     {"codec": "libx265", "container": "mkv", "pix_fmt": "yuv422p10le", "opts": {"crf": "12", "preset": "slow", "profile": "main422-10",  "x265-params": "keyint=1:no-open-gop=1:bframes=0:tune=grain:deblock=-3,-3:no-sao=1"}},
-    "H265_AllI_4:4:4_10bit_CRF10":     {"codec": "libx265", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"crf": "10", "preset": "slow", "profile": "main444-10",  "x265-params": "keyint=1:no-open-gop=1:bframes=0:tune=grain:deblock=-3,-3:no-sao=1"}},
-    "H265_AllI_4:4:4_10bit_lossless":  {"codec": "libx265", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"preset": "veryslow", "profile": "main444-10", "x265-params": "lossless=1:keyint=1:no-open-gop=1:bframes=0"}},
-
-    "FFV1_lossless_4:4:4_10bit":  {"codec": "ffv1", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"level": "3", "g": "1", "coder": "1", "context": "1"}},
+    "x265_4:2:0_10bit_CRF28":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "28", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    "x265_4:2:0_10bit_CRF24":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "24", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    "x265_4:2:0_10bit_CRF18":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "18", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    
+    "FFV1_lossless_4:4:4_10bit":  {"codec": "ffv1", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"level": "3", "g": "90", "coder": "1", "context": "1"}},
 
     # ----------------------------------------------------------------------
     # NVENC (hardware) presets - GPU encoder. ~5-10x faster than software.
     # Quality vs CRF: NVENC CQ ~= CRF + 4-6 at equivalent quality. Lower CQ here
     # to compensate. NVENC h264 is 8-bit only; HEVC + AV1 support 10-bit.
     # ----------------------------------------------------------------------
-    "H264_NVENC_AllI_4:2:0_8bit_CQ16":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "16", "g": "1", "bf": "0", "profile": "high"}},
-    "H264_NVENC_AllI_4:4:4_8bit_CQ14":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv444p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "14", "g": "1", "bf": "0", "profile": "high_444p"}},
+    # "H264_NVENC_AllI_4:2:0_8bit_CQ16":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "16", "g": "1", "bf": "0", "profile": "high"}},
+    # "H264_NVENC_AllI_4:4:4_8bit_CQ14":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv444p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "14", "g": "1", "bf": "0", "profile": "high_444p"}},
 
-    "H265_NVENC_AllI_4:2:0_10bit_CQ18":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "yuv420p10le", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "18", "g": "1", "bf": "0", "profile": "main10"}},
-    "H265_NVENC_AllI_4:2:2_10bit_CQ16":  {"codec": "hevc_nvenc", "container": "mkv", "pix_fmt": "yuv422p10le", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "16", "g": "1", "bf": "0", "profile": "rext"}},
-    "H265_NVENC_AllI_4:4:4_10bit_CQ16":  {"codec": "hevc_nvenc", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "16", "g": "1", "bf": "0", "profile": "rext"}},
-
-    "AV1_NVENC_AllI_4:2:0_10bit_CQ22":  {"codec": "av1_nvenc", "container": "mp4", "pix_fmt": "yuv420p10le", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "22", "g": "1", "bf": "0"}},
+    "H265_NVENC_4:2:0_10bit_CQ24":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "24", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
+    "H265_NVENC_4:2:0_10bit_CQ20":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "20", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
+    "H265_NVENC_4:2:0_10bit_CQ16":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "16", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
 
     "Custom":  None,
 }
@@ -127,6 +117,7 @@ class StandSaveVideo(io.ComfyNode):
         container = cfg["container"]
         pix_fmt = cfg["pix_fmt"]
         opts = cfg["opts"]
+        codec_tag = cfg.get("codec_tag")
 
         comp = video.get_components()
         frames = comp.images
@@ -143,7 +134,7 @@ class StandSaveVideo(io.ComfyNode):
 
         outc = av.open(out_path, mode="w")
         try:
-            video_stream = _prepare_video(outc, frames, fps, codec, opts, pix_fmt)
+            video_stream = _prepare_video(outc, frames, fps, codec, opts, pix_fmt, codec_tag)
             audio_state = None
             if audio is not None:
                 try:
@@ -204,7 +195,7 @@ def _build_custom_config(codec, container, rate_control, crf, bitrate_mbps,
     return {"codec": codec, "container": container, "pix_fmt": pix_fmt, "opts": opts}
 
 
-def _prepare_video(outc, frames, fps, codec, opts, pix_fmt):
+def _prepare_video(outc, frames, fps, codec, opts, pix_fmt, codec_tag=None):
     n, h, w, c = frames.shape
     if c != 3:
         raise ValueError(f"expected 3 channels (RGB), got {c}")
@@ -214,11 +205,20 @@ def _prepare_video(outc, frames, fps, codec, opts, pix_fmt):
     stream.pix_fmt = pix_fmt
     stream.time_base = Fraction(1, int(fps * 1000))
     stream.options = opts
+    if codec_tag is not None:
+        _set_codec_tag(stream, codec_tag)
     return stream
 
 
+def _set_codec_tag(stream, tag):
+    try:
+        stream.codec_context.codec_tag = tag
+    except TypeError:
+        stream.codec_context.codec_tag = int.from_bytes(tag.encode("ascii"), "little")
+
+
 def _encode_video(outc, stream, frames, pix_fmt):
-    is_high_bit = ("10le" in pix_fmt) or ("12le" in pix_fmt) or ("16le" in pix_fmt)
+    is_high_bit = ("10le" in pix_fmt) or ("12le" in pix_fmt) or ("16le" in pix_fmt) or (pix_fmt == "p010le")
     if is_high_bit:
         arr = (frames.cpu().numpy() * 65535.0).clip(0, 65535).astype("uint16")
         for f in arr:
