@@ -95,6 +95,7 @@ class StandSaveVideo(io.ComfyNode):
                 io.String.Input("filename_prefix", default="video/ComfyUI"),
                 io.Combo.Input("preset", options=_PRESET_NAMES, default="H264_AllI_4:2:2_10bit_CRF12",
                                tooltip="Preset format: <codec>_AllI_<subsampling>_<bitdepth>_<quality>. Pick Custom to use the manual widgets below."),
+                io.Boolean.Input("includes_audio", default=False),
                 io.Combo.Input("custom_codec", options=_CUSTOM_CODECS, default="libx264"),
                 io.Combo.Input("custom_container", options=_CONTAINERS, default="mp4"),
                 io.Combo.Input("custom_rate_control", options=_RATE_CONTROLS, default="crf"),
@@ -110,6 +111,7 @@ class StandSaveVideo(io.ComfyNode):
 
     @classmethod
     def execute(cls, video, filename_prefix, preset,
+                includes_audio,
                 custom_codec, custom_container, custom_rate_control,
                 custom_crf, custom_bitrate_mbps, custom_preset_speed,
                 custom_all_intra, custom_pix_fmt) -> io.NodeOutput:
@@ -128,7 +130,7 @@ class StandSaveVideo(io.ComfyNode):
 
         comp = video.get_components()
         frames = comp.images
-        audio = comp.audio
+        audio = comp.audio if includes_audio else None
         fps = comp.frame_rate
         if not isinstance(fps, Fraction):
             fps = Fraction(float(fps)).limit_denominator(1000)
