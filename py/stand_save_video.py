@@ -19,7 +19,7 @@ from comfy_api.latest import io, ui
 log = logging.getLogger("StandSaveVideo")
 
 
-# All presets are intra-only. Naming: <codec>_AllI_<subsampling>_<bitdepth>_<quality>.
+# Naming: <codec>_<subsampling>_<bitdepth>_<quality>.
 # 10-bit pix_fmts use a uint16 RGB intermediate so float precision survives to the encoder.
 PRESETS = {
     "ProRes_Proxy_4:2:2_10bit_(~45Mbps)":     {"codec": "prores_ks", "container": "mov", "pix_fmt": "yuv422p10le", "opts": {"profile": "0"}},
@@ -29,12 +29,12 @@ PRESETS = {
     "ProRes_4444_4:4:4_12bit_(~330Mbps)":     {"codec": "prores_ks", "container": "mov", "pix_fmt": "yuv444p10le", "opts": {"profile": "4"}},
     "ProRes_4444_XQ_4:4:4_12bit_(~500Mbps)":  {"codec": "prores_ks", "container": "mov", "pix_fmt": "yuv444p10le", "opts": {"profile": "5"}},
 
-    "x264_4:2:0_8bit_CRF23":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "23", "preset": "slow", "g": "240"}},
-    "x264_4:2:0_8bit_CRF18":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "18", "preset": "slow", "g": "240"}},
+    "x264_4:2:0_8bit_CRF23":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "23", "preset": "slow", "profile": "high", "g": "240"}},
+    "x264_4:2:0_8bit_CRF18":  {"codec": "libx264", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"crf": "18", "preset": "slow", "profile": "high", "g": "240"}},
 
-    "x265_4:2:0_10bit_CRF28":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "28", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
-    "x265_4:2:0_10bit_CRF24":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "24", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
-    "x265_4:2:0_10bit_CRF18":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "18", "preset": "medium", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    "x265_4:2:0_10bit_CRF28":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "28", "preset": "medium", "profile": "main10", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    "x265_4:2:0_10bit_CRF24":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "24", "preset": "medium", "profile": "main10", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
+    "x265_4:2:0_10bit_CRF18":     {"codec": "libx265", "container": "mp4", "pix_fmt": "yuv420p10le", "codec_tag": "hvc1", "opts": {"crf": "18", "preset": "medium", "profile": "main10", "tune": "ssim", "g": "240", "x265-params": "rc-lookahead=30"}},
     
     "FFV1_lossless_4:4:4_10bit":  {"codec": "ffv1", "container": "mkv", "pix_fmt": "yuv444p10le", "opts": {"level": "3", "g": "90", "coder": "1", "context": "1"}},
 
@@ -46,30 +46,14 @@ PRESETS = {
     # "H264_NVENC_AllI_4:2:0_8bit_CQ16":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv420p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "16", "g": "1", "bf": "0", "profile": "high"}},
     # "H264_NVENC_AllI_4:4:4_8bit_CQ14":  {"codec": "h264_nvenc", "container": "mp4", "pix_fmt": "yuv444p", "opts": {"preset": "p7", "tune": "hq", "rc": "constqp", "qp": "14", "g": "1", "bf": "0", "profile": "high_444p"}},
 
-    "H265_NVENC_4:2:0_10bit_CQ24":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "24", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
-    "H265_NVENC_4:2:0_10bit_CQ20":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "20", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
-    "H265_NVENC_4:2:0_10bit_CQ16":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "16", "g": "240", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
+    "H265_NVENC_4:2:0_10bit_CQ24":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "24", "g": "240", "profile": "main10", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
+    "H265_NVENC_4:2:0_10bit_CQ20":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "20", "g": "240", "profile": "main10", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
+    "H265_NVENC_4:2:0_10bit_CQ16":  {"codec": "hevc_nvenc", "container": "mp4", "pix_fmt": "p010le", "opts": {"preset": "p5", "rc": "vbr", "cq": "16", "g": "240", "profile": "main10", "rc-lookahead": "32", "spatial_aq": "1", "temporal_aq": "1", "aq-strength": "8"}},
 
-    "Custom":  None,
-}
-
-
-H264_PROFILE = {
-    "yuv420p": "high", "yuv422p": "high422", "yuv444p": "high444",
-    "yuv420p10le": "high10", "yuv422p10le": "high422", "yuv444p10le": "high444",
-}
-H265_PROFILE = {
-    "yuv420p": "main", "yuv422p": "main422-8", "yuv444p": "main444-8",
-    "yuv420p10le": "main10", "yuv422p10le": "main422-10", "yuv444p10le": "main444-10",
 }
 
 
 _PRESET_NAMES = list(PRESETS.keys())
-_CUSTOM_CODECS = ["libx264", "libx265", "prores_ks", "ffv1"]
-_CONTAINERS = ["mp4", "mkv", "mov"]
-_RATE_CONTROLS = ["crf", "bitrate", "lossless"]
-_SPEEDS = ["medium", "slow", "slower", "veryslow", "placebo", "fast", "faster", "veryfast", "ultrafast"]
-_PIX_FMTS = ["yuv444p10le", "yuv444p", "yuv422p10le", "yuv422p", "yuv420p10le", "yuv420p"]
 
 
 class StandSaveVideo(io.ComfyNode):
@@ -78,40 +62,24 @@ class StandSaveVideo(io.ComfyNode):
         return io.Schema(
             node_id="StandSaveVideo",
             display_name="Stand Save Video",
-            description="Save VIDEO with intra-only preset tiers (ProRes ladder, H.264 All-I, H.265 All-I, FFV1 lossless). Preset names spell out subsampling and bit depth. 10-bit presets use a 16-bit RGB pipeline so float precision reaches the encoder.",
+            description="Save VIDEO with ProRes, H.264, H.265, FFV1 lossless.",
             category="ComfyStand/video",
             inputs=[
                 io.Video.Input("video"),
                 io.String.Input("filename_prefix", default="video/ComfyUI"),
-                io.Combo.Input("preset", options=_PRESET_NAMES, default="H264_AllI_4:2:2_10bit_CRF12",
-                               tooltip="Preset format: <codec>_AllI_<subsampling>_<bitdepth>_<quality>. Pick Custom to use the manual widgets below."),
+                io.Combo.Input("preset", options=_PRESET_NAMES, default="x265_4:2:0_10bit_CRF24",
+                               tooltip="Preset format: <codec>_<subsampling>_<bitdepth>_<quality>."),
                 io.Boolean.Input("includes_audio", default=False),
-                io.Combo.Input("custom_codec", options=_CUSTOM_CODECS, default="libx264"),
-                io.Combo.Input("custom_container", options=_CONTAINERS, default="mp4"),
-                io.Combo.Input("custom_rate_control", options=_RATE_CONTROLS, default="crf"),
-                io.Int.Input("custom_crf", default=12, min=0, max=51),
-                io.Int.Input("custom_bitrate_mbps", default=80, min=1, max=2000),
-                io.Combo.Input("custom_preset_speed", options=_SPEEDS, default="slow"),
-                io.Boolean.Input("custom_all_intra", default=True),
-                io.Combo.Input("custom_pix_fmt", options=_PIX_FMTS, default="yuv444p10le"),
             ],
             outputs=[],
             is_output_node=True,
         )
 
     @classmethod
-    def execute(cls, video, filename_prefix, preset,
-                includes_audio,
-                custom_codec, custom_container, custom_rate_control,
-                custom_crf, custom_bitrate_mbps, custom_preset_speed,
-                custom_all_intra, custom_pix_fmt) -> io.NodeOutput:
+    def execute(cls, video, filename_prefix, preset, includes_audio) -> io.NodeOutput:
         cfg = PRESETS.get(preset)
         if cfg is None:
-            cfg = _build_custom_config(
-                custom_codec, custom_container, custom_rate_control,
-                custom_crf, custom_bitrate_mbps, custom_preset_speed,
-                custom_all_intra, custom_pix_fmt,
-            )
+            raise ValueError(f"unknown video preset: {preset}")
 
         codec = cfg["codec"]
         container = cfg["container"]
@@ -157,42 +125,6 @@ class StandSaveVideo(io.ComfyNode):
         return io.NodeOutput(ui=ui.PreviewVideo([
             ui.SavedResult(out_filename, subfolder, io.FolderType.output),
         ]))
-
-
-def _build_custom_config(codec, container, rate_control, crf, bitrate_mbps,
-                         preset_speed, all_intra, pix_fmt):
-    opts = {}
-    if codec in ("libx264", "libx265"):
-        opts["preset"] = preset_speed
-        if rate_control == "lossless":
-            if codec == "libx264":
-                opts["qp"] = "0"
-            else:
-                opts["x265-params"] = "lossless=1"
-        elif rate_control == "bitrate":
-            opts["b"] = f"{bitrate_mbps}M"
-            opts["maxrate"] = f"{int(bitrate_mbps * 1.5)}M"
-            opts["bufsize"] = f"{bitrate_mbps * 2}M"
-        else:
-            opts["crf"] = str(crf)
-        if codec == "libx264":
-            opts["profile"] = H264_PROFILE.get(pix_fmt, "high")
-        else:
-            opts["profile"] = H265_PROFILE.get(pix_fmt, "main")
-        if all_intra:
-            opts["g"] = "1"
-            opts["bf"] = "0"
-            if codec == "libx264":
-                opts["x264-params"] = "keyint=1:scenecut=0"
-            else:
-                existing = opts.get("x265-params", "")
-                extra = "keyint=1:no-open-gop=1:bframes=0:tune=grain:deblock=-3,-3"
-                opts["x265-params"] = f"{existing}:{extra}" if existing else extra
-    elif codec == "prores_ks":
-        opts["profile"] = "5" if "444" in pix_fmt else "3"
-    elif codec == "ffv1":
-        opts.update({"level": "3", "coder": "1", "context": "1", "g": "1"})
-    return {"codec": codec, "container": container, "pix_fmt": pix_fmt, "opts": opts}
 
 
 def _prepare_video(outc, frames, fps, codec, opts, pix_fmt, codec_tag=None):
