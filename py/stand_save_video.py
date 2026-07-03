@@ -133,17 +133,11 @@ class StandSaveVideo(io.ComfyNode):
         if not isinstance(fps, Fraction):
             fps = Fraction(float(fps)).limit_denominator(1000)
 
-        out_dir = folder_paths.get_output_directory()
-        full_path, base_prefix, _, subfolder, _ = folder_paths.get_save_image_path(filename_prefix, out_dir)
-        os.makedirs(full_path, exist_ok=True)
-        existing = [f for f in os.listdir(full_path) if f.startswith(base_prefix) and f.endswith(f".{container}")]
-        idx = 1 + max(
-            [int(f[len(base_prefix) + 1:-(len(container) + 1)]) for f in existing
-             if f[len(base_prefix) + 1:-(len(container) + 1)].isdigit()],
-            default=0,
-        )
-        out_filename = f"{base_prefix}_{idx:05d}.{container}"
-        out_path = os.path.join(full_path, out_filename)
+        output_dir = folder_paths.get_output_directory()
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, output_dir)
+        os.makedirs(full_output_folder, exist_ok=True)
+        out_filename = f"{filename}_{counter:05}_.{container}"
+        out_path = os.path.join(full_output_folder, out_filename)
 
         outc = av.open(out_path, mode="w")
         try:
