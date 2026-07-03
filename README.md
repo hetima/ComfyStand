@@ -23,6 +23,10 @@ There are two nodes available: the standard one, and `Stand Multi LoRA Loader (M
 
 ![Screenshot](https://raw.githubusercontent.com/hetima/ComfyStand/main/assets/multi_lora_loader.jpg)
 
+## Stand Save Video
+
+Save the video in formats such as ProRes, H.264, or H.265.
+
 
 ## Enable Grouping Extra Models
 
