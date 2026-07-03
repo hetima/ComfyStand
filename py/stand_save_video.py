@@ -92,7 +92,7 @@ class StandSaveVideo(io.ComfyNode):
             category="ComfyStand/video",
             inputs=[
                 io.Video.Input("video"),
-                io.String.Input("filename_prefix", default="video_hq"),
+                io.String.Input("filename_prefix", default="video/ComfyUI"),
                 io.Combo.Input("preset", options=_PRESET_NAMES, default="H264_AllI_4:2:2_10bit_CRF12",
                                tooltip="Preset format: <codec>_AllI_<subsampling>_<bitdepth>_<quality>. Pick Custom to use the manual widgets below."),
                 io.Combo.Input("custom_codec", options=_CUSTOM_CODECS, default="libx264"),
@@ -141,10 +141,18 @@ class StandSaveVideo(io.ComfyNode):
 
         outc = av.open(out_path, mode="w")
         try:
-            _encode_video(outc, frames, fps, codec, opts, pix_fmt)
+            video_stream = _prepare_video(outc, frames, fps, codec, opts, pix_fmt)
+            audio_state = None
             if audio is not None:
                 try:
-                    _encode_audio(outc, audio, container)
+                    audio_state = _prepare_audio(outc, audio, container)
+                except Exception as e:
+                    log.warning(f"audio setup failed: {e}; saving video-only")
+
+            _encode_video(outc, video_stream, frames, pix_fmt)
+            if audio_state is not None:
+                try:
+                    _encode_audio(outc, audio_state)
                 except Exception as e:
                     log.warning(f"audio passthrough failed: {e}; saving video-only")
         finally:
@@ -194,7 +202,7 @@ def _build_custom_config(codec, container, rate_control, crf, bitrate_mbps,
     return {"codec": codec, "container": container, "pix_fmt": pix_fmt, "opts": opts}
 
 
-def _encode_video(outc, frames, fps, codec, opts, pix_fmt):
+def _prepare_video(outc, frames, fps, codec, opts, pix_fmt):
     n, h, w, c = frames.shape
     if c != 3:
         raise ValueError(f"expected 3 channels (RGB), got {c}")
@@ -204,7 +212,10 @@ def _encode_video(outc, frames, fps, codec, opts, pix_fmt):
     stream.pix_fmt = pix_fmt
     stream.time_base = Fraction(1, int(fps * 1000))
     stream.options = opts
+    return stream
 
+
+def _encode_video(outc, stream, frames, pix_fmt):
     is_high_bit = ("10le" in pix_fmt) or ("12le" in pix_fmt) or ("16le" in pix_fmt)
     if is_high_bit:
         arr = (frames.cpu().numpy() * 65535.0).clip(0, 65535).astype("uint16")
@@ -223,11 +234,11 @@ def _encode_video(outc, frames, fps, codec, opts, pix_fmt):
         outc.mux(packet)
 
 
-def _encode_audio(outc, audio, container):
+def _prepare_audio(outc, audio, container):
     wf = audio["waveform"]
     sr = int(audio["sample_rate"])
     if wf is None or wf.numel() == 0:
-        return
+        return None
 
     a_codec = "aac"
     if container == "mkv":
@@ -235,39 +246,30 @@ def _encode_audio(outc, audio, container):
     elif container == "mov":
         a_codec = "pcm_s16le"
 
-    a_stream = outc.add_stream(a_codec, rate=sr)
-    layout = "stereo" if wf.shape[1] >= 2 else "mono"
-    a_stream.layout = layout
-    # Explicit time_base prevents PyAV's "Cannot rebase to zero time" error
-    # when muxing a single-shot AudioFrame.
-    a_stream.time_base = Fraction(1, sr)
+    waveform = wf[0].cpu()
+    layout = "mono" if waveform.shape[0] == 1 else "stereo"
+    a_stream = outc.add_stream(a_codec, rate=sr, layout=layout)
+    return a_stream, waveform, sr, layout
 
-    samples = wf[0].cpu().numpy()
-    if samples.dtype != "float32":
-        samples = samples.astype("float32")
-    # PyAV expects shape [channels, samples] for planar floats
-    if samples.ndim == 1:
-        samples = samples[None, :]
 
-    a_frame = av.AudioFrame.from_ndarray(samples, format="fltp", layout=layout)
+def _encode_audio(outc, audio_state):
+    a_stream, waveform, sr, layout = audio_state
+
+    # Match ComfyUI's AudioSaveHelper: non-planar float ("flt"), pts=0, and let
+    # the codec pick its own time_base. Forcing a stream time_base on a muxed
+    # audio stream inside a video container trips a divide-by-zero inside
+    # FFmpeg's native rate/timing math on some encoders (aac/pcm_s16le).
+
+    a_frame = av.AudioFrame.from_ndarray(
+        waveform.movedim(0, 1).reshape(1, -1).float().numpy(),
+        format="flt",
+        layout=layout,
+    )
     a_frame.sample_rate = sr
     a_frame.pts = 0
-    a_frame.time_base = a_stream.time_base
 
-    # Many codecs (aac) need fixed-size frames; let av's encoder buffer chunk it.
-    # If a one-shot frame fails, fall back to chunked encoding via a resampler.
-    try:
-        for packet in a_stream.encode(a_frame):
-            outc.mux(packet)
-    except Exception:
-        from av.audio.resampler import AudioResampler
-        resampler = AudioResampler(format="fltp", layout=layout, rate=sr)
-        for resampled in resampler.resample(a_frame):
-            for packet in a_stream.encode(resampled):
-                outc.mux(packet)
-
-    for packet in a_stream.encode(None):  # flush
-        outc.mux(packet)
+    outc.mux(a_stream.encode(a_frame))
+    outc.mux(a_stream.encode(None))  # flush
 
 
 # Standard ComfyUI registration. StandSaveVideo is an io.ComfyNode subclass which
