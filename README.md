@@ -28,6 +28,14 @@ There are two nodes available: the standard one, and `Stand Multi LoRA Loader (M
 Save the video in formats such as ProRes, H.264, or H.265.
 
 
+## Stand Prompt Emitter
+
+Attach this node to the end of your prompt-generation chain, such as after a Generate Text node, and set it to Mute. Enter the ID of the text-editing node you want to update.
+
+The emitter stays muted during normal queue runs, so it will only execute when you press Apply. The generated text is then inserted into the target text-editing node without a direct connection, keeping the text editable.
+
+
+
 ## Enable Grouping Extra Models
 
 Enable the setting under Settings → Application Settings → Stand to use this feature.
