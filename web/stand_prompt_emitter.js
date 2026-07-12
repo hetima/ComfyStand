@@ -57,6 +57,26 @@ function setNodeMode(node, mode) {
     app.graph.setDirtyCanvas(true, true);
 }
 
+function ensurePromptEmitterUi(node) {
+    node.serialize_widgets = true;
+    if (node.comfystandPromptEmitterButton) return;
+
+    node.comfystandPromptEmitterButton = node.addWidget("button", "Apply", null, async () => {
+        const targetNodeId = getTargetNodeId(node);
+        if (!targetNodeId) {
+            console.warn("[ComfyStand] Stand Prompt Emitter target_node_id is empty.");
+            return;
+        }
+
+        try {
+            await queueEmitterNode(node);
+        } catch (error) {
+            console.error("[ComfyStand] Stand Prompt Emitter apply failed:", error);
+        }
+    });
+    node.comfystandPromptEmitterButton.serialize = false;
+}
+
 async function queueEmitterNode(node) {
     const oldMode = node.mode;
     const alwaysMode = window.LiteGraph?.ALWAYS ?? 0;
@@ -90,21 +110,13 @@ app.registerExtension({
         const originalOnNodeCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = function () {
             originalOnNodeCreated?.apply(this, arguments);
-            if (this.comfystandPromptEmitterButton) return;
+            ensurePromptEmitterUi(this);
+        };
 
-            this.comfystandPromptEmitterButton = this.addWidget("button", "Apply", null, async () => {
-                const targetNodeId = getTargetNodeId(this);
-                if (!targetNodeId) {
-                    console.warn("[ComfyStand] Stand Prompt Emitter target_node_id is empty.");
-                    return;
-                }
-
-                try {
-                    await queueEmitterNode(this);
-                } catch (error) {
-                    console.error("[ComfyStand] Stand Prompt Emitter apply failed:", error);
-                }
-            });
+        const originalConfigure = nodeType.prototype.configure;
+        nodeType.prototype.configure = function () {
+            originalConfigure?.apply(this, arguments);
+            ensurePromptEmitterUi(this);
         };
     },
 });
