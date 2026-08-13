@@ -21,6 +21,11 @@ class StandPromptEmitter:
     CATEGORY = "ComfyStand/text"
     OUTPUT_NODE = True
 
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        """Apply実行時はキャッシュを使わず、必ずイベントを送信する。"""
+        return float("nan")
+
     def emit(self, text, target_node_id, unique_id=None):
         PromptServer.instance.send_sync(
             "comfystand.prompt_emitted",
